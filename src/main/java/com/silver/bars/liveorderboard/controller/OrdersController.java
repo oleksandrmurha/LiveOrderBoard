@@ -6,6 +6,8 @@ import com.silver.bars.liveorderboard.exceptions.OrderNotFoundException;
 import com.silver.bars.liveorderboard.service.OrdersService;
 import com.silver.bars.liveorderboard.utils.OrdersSummaryExtractor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +28,8 @@ public class OrdersController {
     private final OrdersSummaryExtractor ordersSummaryExtractor;
 
     @PostMapping
-    public String createOrder(@RequestBody Order order) {
-        return ordersService.createOrder(order);
+    public ResponseEntity<String> createOrder(@Valid @RequestBody Order order) {
+        return new ResponseEntity<>(ordersService.createOrder(order), HttpStatus.CREATED);
     }
 
     @DeleteMapping
