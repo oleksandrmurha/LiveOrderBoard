@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +26,7 @@ class OrdersServiceTest {
 
     @Test
     @DisplayName("Should Create Order")
-    void givenOrder_WhenCreateOrder_ThenAddOrderToCollectionAndReturnOrderId() {
+    void givenOrder_WhenCreateOrder_ThenSaveOrderAndReturnOrderId() {
         //Given
         Order order = testOrder();
 
@@ -120,7 +119,7 @@ class OrdersServiceTest {
     private Order testOrder() {
         return Order.builder()
                 .userId("user1")
-                .quantity(BigDecimal.valueOf(12.34))
+                .quantity(12.34)
                 .price(9876L)
                 .orderType(OrderType.SELL)
                 .build();
@@ -129,7 +128,7 @@ class OrdersServiceTest {
     private Order testOrder2() {
         return Order.builder()
                 .userId("user2")
-                .quantity(BigDecimal.valueOf(56.78))
+                .quantity(56.78)
                 .price(1234L)
                 .orderType(OrderType.BUY)
                 .build();
@@ -138,7 +137,7 @@ class OrdersServiceTest {
     private Order testOrder3() {
         return Order.builder()
                 .userId("user3")
-                .quantity(BigDecimal.valueOf(19.82))
+                .quantity(19.82)
                 .price(5678L)
                 .orderType(OrderType.SELL)
                 .build();
