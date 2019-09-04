@@ -4,6 +4,7 @@ import com.silver.bars.liveorderboard.domain.Order;
 import com.silver.bars.liveorderboard.domain.OrderType;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +34,8 @@ public class OrdersSummaryExtractor {
     }
 
     private List<String> extractOrdersSummary(Collection<Order> allOrders, OrderType orderType) {
+        DecimalFormat df = new DecimalFormat("#.##");
+
         Map<Long, Double> filteredAndGroupedByPrice = Optional.ofNullable(allOrders)
                 .orElse(Collections.emptyList())
                 .stream()
@@ -42,7 +45,7 @@ public class OrdersSummaryExtractor {
         return filteredAndGroupedByPrice.keySet()
                 .stream()
                 .sorted(orderTypeComparatorMap.get(orderType))
-                .map(price -> String.format("%.2f kg for £%d", filteredAndGroupedByPrice.get(price), price))
+                .map(price -> String.format("%s kg for £%d", df.format(filteredAndGroupedByPrice.get(price)), price))
                 .collect(toList());
     }
 }

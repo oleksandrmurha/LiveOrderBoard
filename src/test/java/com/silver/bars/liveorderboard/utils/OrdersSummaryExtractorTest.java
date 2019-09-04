@@ -46,12 +46,12 @@ class OrdersSummaryExtractorTest {
                 buyOrder(4.5, 2L),
                 sellOrder(5.6, 3L),
                 buyOrder(6.7, 3L),
-                sellOrder(1.2, 1L),
-                buyOrder(2.1, 1L),
-                sellOrder(3.4, 2L),
-                buyOrder(4.5, 2L),
-                sellOrder(5.6, 3L),
-                buyOrder(6.7, 3L)
+                sellOrder(10.20, 1L),
+                buyOrder(20.10, 1L),
+                sellOrder(30.40, 2L),
+                buyOrder(40.50, 2L),
+                sellOrder(50.60, 3L),
+                buyOrder(60.70, 3L)
         );
 
         //When
@@ -60,14 +60,14 @@ class OrdersSummaryExtractorTest {
         //Then
         assertEquals(2, ordersSummaryMap.size());
         assertEquals(3, ordersSummaryMap.get(OrderType.SELL).size());
-        assertEquals("2.40 kg for £1", ordersSummaryMap.get(OrderType.SELL).get(0));
-        assertEquals("6.80 kg for £2", ordersSummaryMap.get(OrderType.SELL).get(1));
-        assertEquals("11.20 kg for £3", ordersSummaryMap.get(OrderType.SELL).get(2));
+        assertEquals("11.4 kg for £1", ordersSummaryMap.get(OrderType.SELL).get(0));
+        assertEquals("33.8 kg for £2", ordersSummaryMap.get(OrderType.SELL).get(1));
+        assertEquals("56.2 kg for £3", ordersSummaryMap.get(OrderType.SELL).get(2));
 
         assertEquals(3, ordersSummaryMap.get(OrderType.BUY).size());
-        assertEquals("13.40 kg for £3", ordersSummaryMap.get(OrderType.BUY).get(0));
-        assertEquals("9.00 kg for £2", ordersSummaryMap.get(OrderType.BUY).get(1));
-        assertEquals("4.20 kg for £1", ordersSummaryMap.get(OrderType.BUY).get(2));
+        assertEquals("67.4 kg for £3", ordersSummaryMap.get(OrderType.BUY).get(0));
+        assertEquals("45 kg for £2", ordersSummaryMap.get(OrderType.BUY).get(1));
+        assertEquals("22.2 kg for £1", ordersSummaryMap.get(OrderType.BUY).get(2));
     }
 
     private Order sellOrder(double quantity, long price) {
