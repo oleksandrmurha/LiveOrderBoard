@@ -39,7 +39,7 @@ public class OrdersSummaryExtractor {
         Map<Long, Double> filteredAndGroupedByPrice = Optional.ofNullable(allOrders)
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(order -> order.getOrderType().equals(orderType))
+                .filter(order -> orderType.equals(order.getOrderType()))
                 .collect(groupingBy(Order::getPrice, summingDouble(Order::getQuantity)));
 
         return filteredAndGroupedByPrice.keySet()
