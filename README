@@ -1,0 +1,70 @@
+Silver Bar exercise
+
+* Architecture
+
+I decided to implement Live Order Board as a RESTfull service for sake of simplicity.
+Clients would need to constantly poll the service to get latest orders information.
+In real life, it would be more practical to implement "publish–subscribe" design pattern, when clients would subscribe
+for live order board and we would publish latest board state every time it changes.
+
+* Domain
+
+Based on examples provided I assumed that:
+ - quantity is double representing kilograms
+ - price is long representing pounds per kilo
+
+For simplicity there are no decimal places in price, and it represent whole pounds.
+If we would need to include pence into calculations I would change contract to price in pence then would divide by 100
+to get pounds and pence.
+
+Ideally we would need a client orderReference field to be provided when registering orders to prevent clients from
+accidentally submitting same order multiple times. But this is out of scope for this exercise, and we assume that
+our service is not idempotent.
+
+* Repository
+
+I created OrdersRepository interface and inMemory implementation.
+This way we can create another (for example DB) implementation and use it without changing anything else in the code.
+
+* Response
+
+It is not clear what response format is 'Live Order Board' expecting to have. There is only example with SELL orders,
+but we need to provide BUY orders as well.
+
+So for simplicity I decided to return Map with Order Type as a Key and a list of order summaries as a value.
+
+* How to run and use
+
+To save time I'm not providing Swagger documentation for this exercise.
+
+To start the service you can from project root folder execute:
+
+> mvn clean spring-boot:run
+
+or
+
+> mvn clean install
+and then
+>java -jar target/LiveOrderBoard-1.0.0-SNAPSHOT.jar
+
+
+When service is up, we can send
+
+POST to localhost:8080/orders
+
+{
+	"userId": "user1",
+	"quantity": 1.20,
+	"price": 3,
+	"orderType": "BUY"
+}
+to create order
+
+DELETE to localhost:8080/orders?orderId={orderId}
+ex, localhost:8080/orders?orderId=bf960f36-ab98-4b0d-b690-801653e651f8
+to cancel order
+
+and
+
+GET to localhost:8080/orders
+to get Live Order summaries
