@@ -128,14 +128,11 @@ class OrdersServiceTest {
 
     private Order order(double quantity, long price, OrderType orderType) {
         return Order.builder()
-                .userId(generateUserId())
+                .userId(UUID.randomUUID().toString())
                 .quantity(quantity)
                 .price(price)
                 .orderType(orderType)
                 .build();
     }
 
-    private String generateUserId() {
-        return UUID.randomUUID().toString();
-    }
 }

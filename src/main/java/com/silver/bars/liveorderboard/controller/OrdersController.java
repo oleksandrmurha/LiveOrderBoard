@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,12 +32,19 @@ public class OrdersController {
     }
 
     @DeleteMapping
-    public void cancelOrder(String orderId) throws OrderNotFoundException {
+    public ResponseEntity<Void> cancelOrder(String orderId) throws OrderNotFoundException {
         ordersService.cancelOrder(orderId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping
     public Map<OrderType, List<String>> getOrdersSummary() {
         return ordersService.extractOrdersSummary();
     }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Exception> handleOrderNotFoundException(OrderNotFoundException ex) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 }
