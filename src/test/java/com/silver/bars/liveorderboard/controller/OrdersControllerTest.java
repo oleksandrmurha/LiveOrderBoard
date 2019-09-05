@@ -9,11 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,15 +47,11 @@ class OrdersControllerTest {
 
     @Test
     void whenGetOrdersSummary_TheServiceExtractOrdersSummaryShouldBeCalled() {
-        //Given
-        Collection<Order> orders = Arrays.asList(new Order(), new Order());
-        doReturn(orders).when(mockOrdersService).getAllOrders();
-
         //Then
         underTest.getOrdersSummary();
 
         //Then
-        verify(mockOrdersService).extractOrdersSummary(eq(orders));
+        verify(mockOrdersService).extractOrdersSummary();
     }
 
 }

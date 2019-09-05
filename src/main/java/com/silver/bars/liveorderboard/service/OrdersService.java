@@ -41,15 +41,12 @@ public class OrdersService {
                 .orElseThrow(() -> this.orderNotFoundException(orderId));
     }
 
-    public Collection<Order> getAllOrders() {
-        return ordersRepository.getAllOrders();
-    }
-
     private OrderNotFoundException orderNotFoundException(String orderId) {
         return new OrderNotFoundException(String.format("Order for orderId '%s' is not found", orderId));
     }
 
-    public Map<OrderType, List<String>> extractOrdersSummary(Collection<Order> allOrders) {
+    public Map<OrderType, List<String>> extractOrdersSummary() {
+        final Collection<Order> allOrders = ordersRepository.getAllOrders();
         return new HashMap<OrderType, List<String>>() {{
             put(OrderType.SELL, extractOrdersSummary(allOrders, OrderType.SELL));
             put(OrderType.BUY, extractOrdersSummary(allOrders, OrderType.BUY));

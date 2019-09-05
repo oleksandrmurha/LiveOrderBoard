@@ -37,6 +37,6 @@ public class OrdersController {
 
     @GetMapping
     public Map<OrderType, List<String>> getOrdersSummary() {
-        return ordersService.extractOrdersSummary(ordersService.getAllOrders());
+        return ordersService.extractOrdersSummary();
     }
 }

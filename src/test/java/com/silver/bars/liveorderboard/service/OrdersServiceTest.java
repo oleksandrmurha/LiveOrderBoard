@@ -73,21 +73,9 @@ class OrdersServiceTest {
     }
 
     @Test
-    void whenGetAllOrders_ThenCallRepositoryGetAllOrders() {
+    void givenNoOrders_whenExtractOrdersSummary_thenReturnEmptyListForBuyAndSellOrderTypes() {
         //When
-        underTest.getAllOrders();
-
-        //Then
-        verify(mockOrdersRepository).getAllOrders();
-    }
-
-    @Test
-    void givenAllOrdersIsNull_whenExtractOrdersSummary_thenReturnEmptyListForBuyAndSellOrderTypes() {
-        //Given
-        Collection<Order> allOrders = null;
-
-        //When
-        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary(allOrders);
+        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary();
 
         //Then
         assertEquals(2, ordersSummaryMap.size());
@@ -112,9 +100,10 @@ class OrdersServiceTest {
                 sellOrder(50.60, 3L),
                 buyOrder(60.70, 3L)
         );
+        doReturn(allOrders).when(mockOrdersRepository).getAllOrders();
 
         //When
-        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary(allOrders);
+        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary();
 
         //Then
         assertEquals(2, ordersSummaryMap.size());
