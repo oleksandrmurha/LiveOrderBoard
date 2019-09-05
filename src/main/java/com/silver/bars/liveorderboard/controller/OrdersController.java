@@ -4,7 +4,6 @@ import com.silver.bars.liveorderboard.domain.Order;
 import com.silver.bars.liveorderboard.domain.OrderType;
 import com.silver.bars.liveorderboard.exceptions.OrderNotFoundException;
 import com.silver.bars.liveorderboard.service.OrdersService;
-import com.silver.bars.liveorderboard.utils.OrdersSummaryExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ import java.util.Map;
 public class OrdersController {
 
     private final OrdersService ordersService;
-    private final OrdersSummaryExtractor ordersSummaryExtractor;
 
     @PostMapping
     public ResponseEntity<String> createOrder(@Valid @RequestBody Order order) {
@@ -39,6 +37,6 @@ public class OrdersController {
 
     @GetMapping
     public Map<OrderType, List<String>> getOrdersSummary() {
-        return ordersSummaryExtractor.extractOrdersSummary(ordersService.getAllOrders());
+        return ordersService.extractOrdersSummary(ordersService.getAllOrders());
     }
 }

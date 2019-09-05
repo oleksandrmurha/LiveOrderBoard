@@ -1,18 +1,16 @@
 package com.silver.bars.liveorderboard.controller;
 
 import com.silver.bars.liveorderboard.domain.Order;
-import com.silver.bars.liveorderboard.domain.OrderType;
 import com.silver.bars.liveorderboard.exceptions.OrderNotFoundException;
 import com.silver.bars.liveorderboard.service.OrdersService;
-import com.silver.bars.liveorderboard.utils.OrdersSummaryExtractor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -24,16 +22,13 @@ class OrdersControllerTest {
     @Mock
     private OrdersService mockOrdersService;
 
-    @Mock
-    private OrdersSummaryExtractor mockOrdersSummaryExtractor;
-
     @InjectMocks
     private OrdersController underTest;
 
     @Test
     void givenOrder_whenCreateOrder_ThenServiceCreateOrderShouldCalled() {
         //Given
-        Order order = testOrder();
+        Order order = new Order();
 
         //Then
         underTest.createOrder(order);
@@ -55,25 +50,16 @@ class OrdersControllerTest {
     }
 
     @Test
-    void whenGetOrdersSummary_TheOrdersSummaryExtractorShouldBeCalled() {
+    void whenGetOrdersSummary_TheServiceExtractOrdersSummaryShouldBeCalled() {
         //Given
-        Collection<Order> orders = Collections.singletonList(testOrder());
+        Collection<Order> orders = Arrays.asList(new Order(), new Order());
         doReturn(orders).when(mockOrdersService).getAllOrders();
 
         //Then
         underTest.getOrdersSummary();
 
         //Then
-        verify(mockOrdersService).getAllOrders();
-        verify(mockOrdersSummaryExtractor).extractOrdersSummary(eq(orders));
+        verify(mockOrdersService).extractOrdersSummary(eq(orders));
     }
 
-    private Order testOrder() {
-        return Order.builder()
-                .userId("user1")
-                .quantity(12.34)
-                .price(9876L)
-                .orderType(OrderType.SELL)
-                .build();
-    }
 }

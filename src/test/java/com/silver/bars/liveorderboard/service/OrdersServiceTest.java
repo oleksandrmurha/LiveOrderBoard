@@ -3,84 +3,61 @@ package com.silver.bars.liveorderboard.service;
 import com.silver.bars.liveorderboard.domain.Order;
 import com.silver.bars.liveorderboard.domain.OrderType;
 import com.silver.bars.liveorderboard.exceptions.OrderNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import com.silver.bars.liveorderboard.repository.OrdersRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class OrdersServiceTest {
 
+    @Mock
+    private OrdersRepository mockOrdersRepository;
+
+    @InjectMocks
     private OrdersService underTest;
 
-    @BeforeEach
-    void setUp() {
-        underTest = new OrdersService();
-    }
-
     @Test
-    @DisplayName("Should Create Order")
-    void givenOrder_WhenCreateOrder_ThenSaveOrderAndReturnOrderId() {
+    void givenOrder_WhenCreateOrder_ThenCallRepositoryCreateOrder() {
         //Given
-        Order order = testOrder();
+        Order order = new Order();
 
         //When
-        String orderId = underTest.createOrder(order);
+        underTest.createOrder(order);
 
         //Then
-        assertNotNull(orderId);
-        assertEquals(order, underTest.getOrder(orderId));
+        verify(mockOrdersRepository).createOrder(eq(order));
     }
 
     @Test
-    void givenExistingOrderId_whenGetOrder_thenReturnOrder() {
-        //Given
-        Order expectedOrder = testOrder();
-        String orderId = underTest.createOrder(expectedOrder);
-
-        //When
-        Order actualOrder = underTest.getOrder(orderId);
-
-        //Then
-        assertEquals(expectedOrder, actualOrder);
-    }
-
-    @Test
-    void givenNonExistentOrderId_whenGetOrder_thenReturnNull() {
+    void givenExistingOrderId_WhenCancelOrder_ThenCallRepositoryCancelOrder() throws OrderNotFoundException {
         //Given
         String orderId = "TestOrderId";
-
-        //When
-        Order actualOrder = underTest.getOrder(orderId);
-
-        //Then
-        assertNull(actualOrder);
-    }
-
-    @Test
-    @DisplayName("Cancel Order by Order Id")
-    void shouldCancelOrder() throws OrderNotFoundException {
-        //Given
-        Order order = testOrder();
-
-        String orderId = underTest.createOrder(order);
+        doReturn(new Order()).when(mockOrdersRepository).cancelOrder(eq(orderId));
 
         //When
         underTest.cancelOrder(orderId);
 
         //Then
-        assertNull(underTest.getOrder(orderId));
+        verify(mockOrdersRepository).cancelOrder(eq(orderId));
     }
 
     @Test
-    @DisplayName("Cancel Order by Order Id")
-    void givenNonExistentOrderId_whenCancelOrder_thenThrowOrderNotFoundException() {
+    void givenNonExistentOrderId_WhenCancelOrder_ThenThrowOrderNotFoundException() {
         //Given
         String orderId = "TestOrderId";
         String expectedMessage = "Order for orderId 'TestOrderId' is not found";
@@ -96,50 +73,80 @@ class OrdersServiceTest {
     }
 
     @Test
-    void givenThreeOrdersCreated_whenGetAllOrders_thenReturnAllThreeOrders() {
-        //Given
-        Order order1 = testOrder();
-        Order order2 = testOrder2();
-        Order order3 = testOrder3();
-
-        underTest.createOrder(order1);
-        underTest.createOrder(order2);
-        underTest.createOrder(order3);
-
+    void whenGetAllOrders_ThenCallRepositoryGetAllOrders() {
         //When
-        Collection<Order> allOrders = underTest.getAllOrders();
+        underTest.getAllOrders();
 
         //Then
-        assertEquals(3, allOrders.size());
-        assertTrue(allOrders.contains(order1));
-        assertTrue(allOrders.contains(order2));
-        assertTrue(allOrders.contains(order3));
+        verify(mockOrdersRepository).getAllOrders();
     }
 
-    private Order testOrder() {
+    @Test
+    void givenAllOrdersIsNull_whenExtractOrdersSummary_thenReturnEmptyListForBuyAndSellOrderTypes() {
+        //Given
+        Collection<Order> allOrders = null;
+
+        //When
+        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary(allOrders);
+
+        //Then
+        assertEquals(2, ordersSummaryMap.size());
+        assertEquals(0, ordersSummaryMap.get(OrderType.SELL).size());
+        assertEquals(0, ordersSummaryMap.get(OrderType.BUY).size());
+    }
+
+    @Test
+    void givenOrdersWithDifferentOrderTypes_whenExtractOrdersSummary_thenReturnOrdersSummaryGroupByType() {
+        //Given
+        Collection<Order> allOrders = Arrays.asList(
+                sellOrder(1.2, 1L),
+                buyOrder(2.1, 1L),
+                sellOrder(3.4, 2L),
+                buyOrder(4.5, 2L),
+                sellOrder(5.6, 3L),
+                buyOrder(6.7, 3L),
+                sellOrder(10.20, 1L),
+                buyOrder(20.10, 1L),
+                sellOrder(30.40, 2L),
+                buyOrder(40.50, 2L),
+                sellOrder(50.60, 3L),
+                buyOrder(60.70, 3L)
+        );
+
+        //When
+        Map<OrderType, List<String>> ordersSummaryMap = underTest.extractOrdersSummary(allOrders);
+
+        //Then
+        assertEquals(2, ordersSummaryMap.size());
+        assertEquals(3, ordersSummaryMap.get(OrderType.SELL).size());
+        assertEquals("11.4 kg for £1", ordersSummaryMap.get(OrderType.SELL).get(0));
+        assertEquals("33.8 kg for £2", ordersSummaryMap.get(OrderType.SELL).get(1));
+        assertEquals("56.2 kg for £3", ordersSummaryMap.get(OrderType.SELL).get(2));
+
+        assertEquals(3, ordersSummaryMap.get(OrderType.BUY).size());
+        assertEquals("67.4 kg for £3", ordersSummaryMap.get(OrderType.BUY).get(0));
+        assertEquals("45 kg for £2", ordersSummaryMap.get(OrderType.BUY).get(1));
+        assertEquals("22.2 kg for £1", ordersSummaryMap.get(OrderType.BUY).get(2));
+    }
+
+    private Order sellOrder(double quantity, long price) {
+        return order(quantity, price, OrderType.SELL);
+    }
+
+    private Order buyOrder(double quantity, long price) {
+        return order(quantity, price, OrderType.BUY);
+    }
+
+    private Order order(double quantity, long price, OrderType orderType) {
         return Order.builder()
-                .userId("user1")
-                .quantity(12.34)
-                .price(9876L)
-                .orderType(OrderType.SELL)
+                .userId(generateUserId())
+                .quantity(quantity)
+                .price(price)
+                .orderType(orderType)
                 .build();
     }
 
-    private Order testOrder2() {
-        return Order.builder()
-                .userId("user2")
-                .quantity(56.78)
-                .price(1234L)
-                .orderType(OrderType.BUY)
-                .build();
-    }
-
-    private Order testOrder3() {
-        return Order.builder()
-                .userId("user3")
-                .quantity(19.82)
-                .price(5678L)
-                .orderType(OrderType.SELL)
-                .build();
+    private String generateUserId() {
+        return UUID.randomUUID().toString();
     }
 }
